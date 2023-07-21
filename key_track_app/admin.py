@@ -2,10 +2,10 @@ from django import forms
 from django.contrib import admin, messages
 from .models import Personal, Key, KeyHandover, KeyReception
 from django.core.exceptions import ObjectDoesNotExist
-from import_export.admin import ExportActionMixin
+from import_export.admin import ExportActionMixin, ImportExportActionModelAdmin
 
 @admin.register(Personal)
-class PersonalAdmin(admin.ModelAdmin):
+class PersonalAdmin(ImportExportActionModelAdmin, admin.ModelAdmin):
     search_fields = ['name','email', 'phone', 'code']
     list_display = ['name', 'email', 'phone']
 
@@ -17,7 +17,7 @@ class PersonalAdmin(admin.ModelAdmin):
 
 
 @admin.register(Key)
-class KeyAdmin(admin.ModelAdmin):
+class KeyAdmin(ImportExportActionModelAdmin, admin.ModelAdmin):
     search_fields = ['code', 'number']
 
 

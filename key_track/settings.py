@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'key_track_app',
+    'import_export',
 ]
 
 MIDDLEWARE = [
