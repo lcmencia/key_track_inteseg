@@ -6,10 +6,10 @@ class Personal(models.Model):
     phoneNumberRegex = RegexValidator(regex = r"^\+?1?\d{8,15}$")
     documentNumberRegex = RegexValidator(regex = r"^[\d.-]+$")
     name = models.CharField(max_length=255, verbose_name='Nombre')
-    email = models.EmailField()
-    phone = models.CharField(validators = [phoneNumberRegex], max_length = 16, verbose_name='Teléfono')
+    email = models.EmailField(blank=True)
+    phone = models.CharField(validators = [phoneNumberRegex], max_length = 16, verbose_name='Teléfono', blank=True)
     code = models.CharField(max_length=255, unique=True, verbose_name='Código de barra')
-    document_number = models.CharField(validators = [documentNumberRegex], max_length=255, verbose_name='Cédula')
+    document_number = models.CharField(validators = [documentNumberRegex], max_length=255, verbose_name='Cédula', blank=True)
 
     class Meta:
         verbose_name_plural = "Personales"
