@@ -9,6 +9,13 @@ class PersonalAdmin(admin.ModelAdmin):
     search_fields = ['name','email', 'phone', 'code']
     list_display = ['name', 'email', 'phone']
 
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        field = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if db_field.name == 'code':
+            field.widget.attrs['onkeydown'] = 'if (event.keyCode == 13) { event.preventDefault(); return false; }'
+        return field
+
+
 @admin.register(Key)
 class KeyAdmin(admin.ModelAdmin):
     search_fields = ['code', 'number']

@@ -1,11 +1,15 @@
 from django.db import models
+from django.forms import ValidationError
+from django.core.validators import RegexValidator
 
 class Personal(models.Model):
+    phoneNumberRegex = RegexValidator(regex = r"^\+?1?\d{8,15}$")
+    documentNumberRegex = RegexValidator(regex = r"^[\d.-]+$")
     name = models.CharField(max_length=255, verbose_name='Nombre')
     email = models.EmailField()
-    phone = models.CharField(max_length=20, verbose_name='Teléfono')
+    phone = models.CharField(validators = [phoneNumberRegex], max_length = 16, verbose_name='Teléfono')
     code = models.CharField(max_length=255, unique=True, verbose_name='Código de barra')
-    document_number = models.CharField(max_length=255, verbose_name='Cédula')
+    document_number = models.CharField(validators = [documentNumberRegex], max_length=255, verbose_name='Cédula')
 
     class Meta:
         verbose_name_plural = "Personales"
@@ -38,9 +42,33 @@ class KeyHandover(models.Model):
     class Meta:
         verbose_name = "Entrega de Llave"
         verbose_name_plural = "Entregas"
+        constraints = [
+            models.UniqueConstraint(
+                fields=['personal', 'key'],
+                condition=models.Q(status='pendiente'),
+                name='unique_pending_key_handover'
+            )
+        ]
 
     def __str__(self):
         return f"Entrega {self.id}"
+
+    def clean(self):
+        # Comprobar si ya existe una entrega pendiente con la misma combinación de personal y key
+        if not Personal.objects.filter(code=self.personal_code).exists():
+            raise ValidationError({
+                'personal_code': 'Este código no corresponde a ningun personal.'
+            })
+        
+        if not Key.objects.filter(code=self.key_code).exists():
+            raise ValidationError({
+                'key_code': 'Este código no corresponde a ninguna Llave.'
+            })
+        
+        personal = Personal.objects.get(code=self.personal_code)
+        key = Key.objects.get(code=self.key_code)
+        if self.status == 'pendiente' and KeyHandover.objects.filter(personal=personal, key=key, status='pendiente').exists():
+            raise ValidationError('Ya existe una entrega pendiente para este personal y llave.')
     
 
 class KeyReception(models.Model):
@@ -55,3 +83,18 @@ class KeyReception(models.Model):
 
     def __str__(self):
         return f"Recepción {self.id}"
+    
+    def clean(self):
+
+        if not Key.objects.filter(code=self.key_code).exists():
+            raise ValidationError({
+                'key_code': 'Este código no corresponde a ninguna Llave.'
+            })
+        
+        key = Key.objects.get(code=self.key_code)
+        
+        if not KeyHandover.objects.filter(key=key, status='pendiente').exists():
+            raise ValidationError('Esta llave ya ha sido devuelta.')
+        
+
+        
