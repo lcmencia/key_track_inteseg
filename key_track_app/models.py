@@ -67,7 +67,7 @@ class KeyHandover(models.Model):
         
         key = Key.objects.get(code=self.key_code)
         if self.status == 'pendiente' and KeyHandover.objects.filter(key=key, status='pendiente').exists():
-            raise ValidationError('Ya existe una entrega pendiente para este personal y llave.')
+            raise ValidationError('Ya existe una entrega pendiente para esta llave.')
     
 
 class KeyReception(models.Model):
