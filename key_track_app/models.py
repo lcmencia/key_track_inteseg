@@ -5,6 +5,7 @@ class Personal(models.Model):
     email = models.EmailField()
     phone = models.CharField(max_length=20, verbose_name='Teléfono')
     code = models.CharField(max_length=255, unique=True, verbose_name='Código de barra')
+    document_number = models.CharField(max_length=255, verbose_name='Cédula')
 
     class Meta:
         verbose_name_plural = "Personales"
